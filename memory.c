@@ -13,9 +13,6 @@ char name1[20] = "NameForPlayer1var";
 char name2[20] = "NameForPlayer2var";
 char gameString[] = "structGameString";
 
-//If turn is 1 then it is player 1's turn
-//If turn is 2 then it is player 2's turn
-
 //FUNCTIONS
 void createGameString(char *gameString, int rows, int columns);
 // void printMenu();
