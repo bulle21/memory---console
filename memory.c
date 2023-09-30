@@ -12,12 +12,15 @@ int points2 = 0;
 char name1[20] = "NameForPlayer1var";
 char name2[20] = "NameForPlayer2var";
 char gameString[] = "structGameString";
+char player1Inputs[] = "\0";
+char player2Inputs[] = "\0";
+int caracter8 = 8;
+
 
 //FUNCTIONS
 void createGameString(char *gameString, int rows, int columns);
-// void printMenu();
 // void printGame(char *gameString, int rows, int columns, int turn, char *name1, char *name2);
-void printTable(char *gameString, int rows, int columns, int input1, int input2);
+void printTable(char *gameString, char *tableString, int rows, int columns);
 void printTop(int columns);
 void printBottom(int columns);
 int checkTurn(int input1, int input2, int turn);//Boolean, return 1 if input 1 and 2 match and 0 if they don't match return 0
@@ -71,12 +74,13 @@ int checkTurn(int input1, int input2, int turn) {
     }
 }
 
-void printTable(char *gameString, int rows, int columns, int input1, int input2) {
+void printTable(char *gameString, char *tableString, int rows, int columns) {
     printTop(columns);
     for (int i = 0; i < rows; i++) {
         printf("│");
         for (int j = 0; j < columns; j++) {
-            if (i*columns + j == input1 - 1 || i*columns + j == input2 - 1) {
+            int tableStringInt = tableString[i*columns + j];
+            if (i*columns + j == tableStringInt) {
                 printf("   %c   │", gameString[i*columns + j]);
             } else {
 
@@ -130,11 +134,19 @@ void printBottom(int columns) {
     }
 }
 
+void printGame(int rows, int columns, int turn, char *name1, char *name2) {
+    printf("\n\n   Player 1: %s                   Player2: %s\n", name1, name2);
+    printf("   Points: %i                        Points: %i\n", points1, points2);
+    printf("   Turn: %i\n\n", turn);
+    printTable(gameString, tableString, rows, columns);
+    printf("\n\n");
+}
 
 int main () {
     createGameString(gameString, 4, 4);
     printf("%s\n", gameString);
-    printTable(gameString, 4, 4, 1, 2);
+    printf("%s", tableString);
+    printTable(gameString, tableString, 4, 4);
     return 0;
 }
 
