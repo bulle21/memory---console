@@ -1,0 +1,8 @@
+
+#REPLIT IGNORES
+.
+.replit
+.cache
+.ccls-cache
+..
+replit.nix

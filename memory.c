@@ -12,8 +12,7 @@ int points2 = 0;
 char name1[20] = "NameForPlayer1var";
 char name2[20] = "NameForPlayer2var";
 char gameString[] = "structGameString";
-char player1Inputs[] = "\0";
-char player2Inputs[] = "\0";
+
 
 // FUNCTIONS
 void createGameString(char *gameString, int rows, int columns);
@@ -21,10 +20,10 @@ void printGame(int turn, char *name1, char *name2, int points1, int points2);
 void printTable(char *gameString, char *player1Inputs, char *player2Inputs, int rows, int columns);
 void printTop(int columns);
 void printBottom(int columns);
-void resetInputs(int turn);
+void resetInputs(int turn, char *player1Inputs,  char *player2Inputs);
 int checkTurn(int input1, int input2, int turn); // Boolean, return 1 if input 1 and 2 match and 0 if they don't match return 0
 int aleatoryChar();
-int inputPlayer(int turn, int time, int input);
+int inputPlayer(int turn, int time, int input, char *player1Inputs,  char *player2Inputs);
 
 int aleatoryChar(){
     srand((unsigned int)clock());
@@ -145,26 +144,26 @@ void printBottom(int columns) {
     }
 }
 
-int inputPlayer(int turn, int time, int input){
+int inputPlayer(int turn, int time, int input, char *player1Inputs,  char *player2Inputs){
     if (turn == 1){
         char inputChar[2];
         sprintf(inputChar, "%c", input);
-        strcat(player1Inputs, inputChar);
+        player1Inputs[time] = inputChar[0];
     } else {
         char inputChar[2];
         sprintf(inputChar, "%c", input);
-        strcat(player2Inputs, inputChar);
+        player2Inputs[time] = inputChar[0];
     }
 }
 
-void resetInputs(int turn){
+void resetInputs(int turn, char *player1Inputs,  char *player2Inputs){
     if (turn == 1) {
         for (int i = 0; i <= sizeof(player1Inputs) + 1; i++) {
-            player1Inputs[i] = '\0';
+            player1Inputs[i] = 0;
         }
     } else {
         for (int i = 0; i <= sizeof(player2Inputs) + 1; i++) {
-            player2Inputs[i] = '\0';
+            player2Inputs[i] = 0;
         }
     }
 }
@@ -189,60 +188,72 @@ int main(){
     scanf("%s", name2);
     system("clear");
     createGameString(gameString, rows, columns);
+    char player1Inputs[rows*columns];
+    char player2Inputs[rows*columns];
+    int timePlayer1 = 0;
+    int timePlayer2 = 0;
+    memset(player1Inputs, '\0', sizeof(player1Inputs));
+    memset(player2Inputs, '\0', sizeof(player2Inputs));
     while (points1 < rows * columns / 2 && points2 < rows * columns / 2) {
+        printf("%s \n", gameString);
         printGame(turn, name1, name2, points1, points2);
         printTable(gameString, player1Inputs, player2Inputs, rows, columns);
         int input1 = 0;
         int input2 = 0;
-        int time = 0;
         if (turn == 1) {
             printf("Jugador 1: %s\n", name1);
             printf("Ingrese el primer número: ");
             scanf("%d", &input1);
-            inputPlayer(turn, time, input1);
+            inputPlayer(turn, timePlayer1, input1, player1Inputs,  player2Inputs);
             system("clear");
             printGame(turn, name1, name2, points1, points2);
             printTable(gameString, player1Inputs, player2Inputs, rows, columns);
             printf("Ingrese el segundo número: ");
             scanf("%d", &input2);
-            inputPlayer(turn, time, input2);
+            inputPlayer(turn, timePlayer1 + 1, input2, player1Inputs, player2Inputs);
             system("clear");
             printGame(turn, name1, name2, points1, points2);
             printTable(gameString, player1Inputs, player2Inputs, rows, columns);
             if (checkTurn(input1, input2, turn) == 1) {
                 printf("¡Bien hecho!\n");
                 system("sleep 2");
+                timePlayer1 += 2;
             } else {
                 printf("¡Fallaste!\n");
                 system("sleep 2");
-                resetInputs(turn);
+                resetInputs(turn, player1Inputs,  player2Inputs);
                 turn = 2;
+                timePlayer1 = 0;
             }
         } else {
+            printf("%s \n", gameString);
             printf("Jugador 2: %s\n", name2);
             printf("Ingrese el primer número: ");
             scanf("%d", &input1);
-            inputPlayer(turn, time, input1);
+            inputPlayer(turn, timePlayer2, input1, player1Inputs,  player2Inputs);
             system("clear");
             printGame(turn, name1, name2, points1, points2);
             printTable(gameString, player1Inputs, player2Inputs, rows, columns);
             printf("Ingrese el segundo número: ");
             scanf("%d", &input2);
-            inputPlayer(turn, time, input2);
+            inputPlayer(turn, timePlayer2 + 1, input2, player1Inputs,  player2Inputs);
             system("clear");
             printGame(turn, name1, name2, points1, points2);
             printTable(gameString, player1Inputs, player2Inputs, rows, columns);
             if (checkTurn(input1, input2, turn) == 1) {
                 printf("¡Bien hecho!\n");
                 system("sleep 2");
+                timePlayer2 += 2;
             } else {
                 printf("¡Fallaste!\n");
                 system("sleep 2");
-                resetInputs(turn);
+                resetInputs(turn, player1Inputs,  player2Inputs);
                 turn = 1;
+                timePlayer2 = 0;
             }
         }
         system("clear");
+        printf("Ganastee");//Work in succesful message with colors
     }
 }
 
