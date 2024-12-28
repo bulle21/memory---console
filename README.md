@@ -5,6 +5,7 @@
 - quand on trouve des paires, on n'affiche plus celles-ci par la suite.
 - utilisation uniquement des lettres (minuscules et majuscules) et des combinaisons de lettres et de chiffres, en évitant les chiffres seuls qui pourraient être confondus avec les numéros d'identification des cases.
 - modification du code pour vérifier et afficher le score final lorsque la partie est terminée et faire un recapitulatif.
+- ne pas permettre de saisir 2 fois la même case.
 
 - A venir :
   Modifier le programme pour avoir un joueur contre la machine.
