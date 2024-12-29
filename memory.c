@@ -14,93 +14,128 @@ char 	name1[20] = "NameForPlayer1var",
      	name2[20] = "NameForPlayer2var";
 
 // FUNCTIONS
-static void createGameString(char *gameString, int rows, int columns);
-static void printGame(int turn, char *name1, char *name2, int points1, int points2);
-static void printTable(char *gameString, char *player1Inputs, char *player2Inputs, int rows, int columns);
-static void printTop(int columns);
-static void printBottom(int columns);
-static void resetInputs(int turn, char *player1Inputs,  char *player2Inputs);
-static int checkTurn(char * gameString, int input1, int input2, int turn);
-static char aleatoryChar();
-static int inputPlayer(int turn, int time, int input, char *player1Inputs,  char *player2Inputs);
-static int validateInput(int input, int rows, int columns, int previousInput);
-static void markAsDiscovered(int input1, int input2);
-static void printFinalScore(char *name1, char *name2, int points1, int points2);
+static void createGameString(char *,int,int);
+static void printGame(int,char *,char *,int,int);
+static void printTable(char *,char *,char *,int,int);
+static void printTop(int);
+static void printBottom(int);
+static void markAsDiscovered(int,int);
+static void resetInputs(int,char *, char *);
+static void printFinalScore(char *,char *,int,int);
+static int checkTurn(char *,int,int,int);
+static int inputPlayer(int,int,int,char *, char *);
+static int validateInput(int,int,int,int);
+static int getValidNumericInput(const char*) ;
+static char aleatoryChar(void);
+
 
 static char aleatoryChar()
 {
-static const char alphanum[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "!@#$%^&*()_+{}|:<>?-=[];',./";
+static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+{}|:<>?-=[];',./";
 return(alphanum[rand() % (sizeof(alphanum) - 1)]);
 }
 
-static int validateInput(int input, int rows, int columns, int previousInput)
+
+static int getValidNumericInput(const char* prompt) 
+{
+char 	*newline,input[100];
+int 	i,valid = 0,
+	number,c;
+    
+do {
+    printf("%s", prompt);
+    if(fgets(input, sizeof(input), stdin)) {
+        // Remove newline if present
+        newline = strchr(input, '\n');
+        if(newline) 
+		*newline = 0;
+        
+        // Check if input is numeric
+        valid = 1;
+        for(i = 0;input[i] != '\0'; i++) 
+            if(input[i] < '0' || input[i] > '9') {
+                valid = 0;
+                break;
+                }
+            
+        if(valid && sscanf(input, "%d", &number) == 1) 
+            return(number);
+        }
+        
+    printf("\x1b[31mEntrée invalide. Veuillez entrer un nombre.\x1b[0m\n");
+    
+    // Clear any remaining input
+    while((c = getchar()) != '\n' && c != EOF);
+
+    } while (!valid);
+    
+return(0);
+}
+
+
+
+// saisie d'un numero de case
+static int validateInput(int input,int rows,int columns,int previousInput)
 { 
-int 	inputValidated = 0,
+int 	i,inputValidated = 0,
     	availableCells = 0;
     
 // Count available cells
-for (int i = 0; i < rows * columns; i++) {
-    if (!discoveredCells[i]) {
-        availableCells++;
-        }
-    }
+for(i = 0;i < rows * columns;i ++) 
+    if(!discoveredCells[i]) 
+        availableCells ++;
     
-while (inputValidated == 0) {
-    if (scanf("%d", &input) != 1) {
-        // Clear input buffer
-        while (getchar() != '\n');
-        printf("\x1b[31mEntrée invalide. Veuillez entrer un nombre.\x1b[0m\n");
-    } 
-    else if (input > rows * columns || input < 1 || discoveredCells[input - 1]) {
-        if(availableCells > 0) {
-            printf("\x1b[31mVeuillez entrer un nombre valide entre 1 et %d (case non découverte)\x1b[0m\n", rows * columns);
-        } 
-        else {
-            // No more valid cells, end the game
-            return -1;
-        }
-    }
-    // Add check for same input as previous selection
-    else if (previousInput != 0 && input == previousInput) {
-        printf("\x1b[31mVous ne pouvez pas sélectionner la même case deux fois!\x1b[0m\n");
-    }
-    else {
-        inputValidated = 1;
-    }
+do	{
+	if(scanf("%d",&input) != 1) {
+        	// Clear input buffer
+        	while(getchar() != '\n');
+        	printf("\x1b[31mEntrée invalide. Veuillez entrer un nombre.\x1b[0m\n");
+    		} 
+    	else if (input > rows * columns || input < 1 || discoveredCells[input - 1]) {
+        	if(availableCells > 0) 
+            		printf("\x1b[31mVeuillez entrer un nombre valide entre 1 et %d (case non découverte)\x1b[0m\n", 
+					rows * columns);
+        	else 
+            		// No more valid cells, end the game
+            		return(-1);
+    		}
+	
+    	// Add check for same input as previous selection
+    	else if(previousInput != 0 && input == previousInput) 
+        	printf("\x1b[31mVous ne pouvez pas sélectionner la même case deux fois!\x1b[0m\n");
+    	else 
+        	inputValidated = 1;
         
-    if(!inputValidated) {
-        printf("Entrez un numéro de case valide : ");
-    }
-}
+    	if(!inputValidated) 
+        	printf("Entrez un numéro de case valide : ");
+
+	} while(inputValidated == 0);
+
 return(input);
 }
 
-static void createGameString(char *gameString, int rows, int columns) 
+static void createGameString(char *gameString,int rows,int columns) 
 {
-char lastChar = '\0';
-char backUp[rows * columns];
-for (int i = 0; i < rows * columns; i += 2) {
-    char aleatoryCharCreated = aleatoryChar();
-    while (aleatoryCharCreated == lastChar) {
+int 	i,aleatoryPosition;
+char 	aleatoryCharCreated,lastChar = '\0',
+	backUp[rows * columns];
+
+for(i = 0;i < rows * columns;i += 2) {
+    aleatoryCharCreated = aleatoryChar();
+    while(aleatoryCharCreated == lastChar) 
         aleatoryCharCreated = aleatoryChar();
-        }
+
     lastChar = aleatoryCharCreated;
-    backUp[i] = lastChar;
-    backUp[i + 1] = lastChar;
+    backUp[i] = backUp[i + 1] = lastChar;
     }
 
-for (int i = 0; i <= rows * columns; i++) {
+for(i = 0;i <= rows * columns;i ++) 
     gameString[i] = '\0';
-    }
 
-for (int i = 0; i < rows * columns; i++) {
-    int aleatoryPosition = rand() % (rows * columns);
-    while (gameString[aleatoryPosition] != '\0') {
+for(i = 0;i < rows * columns;i ++) {
+    aleatoryPosition = rand() % (rows * columns);
+    while(gameString[aleatoryPosition] != '\0') 
         aleatoryPosition = rand() % (rows * columns);
-        }
     gameString[aleatoryPosition] = backUp[i];
     }
 }
@@ -129,14 +164,14 @@ discoveredCells[input2 - 1] = 1;
 static void printTable(char *gameString, char *player1Inputs, char *player2Inputs, int rows, int columns)
 {
 printTop(columns);
-for (int i = 0; i < rows; i++) {
+for(int i = 0; i < rows; i++) {
 	printf("│");
-    	for (int j = 0; j < columns; j++) {
+    	for(int j = 0; j < columns; j++) {
         	int cellIndex = i * columns + j;
-        	if (discoveredCells[cellIndex]) {
+        	if(discoveredCells[cellIndex]) {
             		printf("       │");
         		} 
-		else if ((int)player1Inputs[cellIndex] || (int)player2Inputs[cellIndex]) {
+		else if((int)player1Inputs[cellIndex] || (int)player2Inputs[cellIndex]) {
             		printf("   %c   │", gameString[cellIndex]);
         		} 
 		else {
@@ -178,79 +213,76 @@ for(int i = 0; i < columns; i++) {
 
 static void printBottom(int columns) 
 {
-for(int i = 0; i < columns; i++) {
-    if(i == 0) {
+int i;
+
+for(i = 0; i < columns; i++) {
+    if(i == 0) 
         printf("└");
-    	}
-    if(i == columns - 1) {
+    	
+    if(i == columns - 1) 
         printf("───────┘\n");
-    	} 
-    else {
+    else 
         printf("───────┴");
-        }
     }
 }
 
 static int inputPlayer(int turn, int time, int input, char *player1Inputs,  char *player2Inputs)
 {
-    if (turn == 1){
-        player1Inputs[input - 1] = 1;
-    } else {
-        player2Inputs[input - 1] = 1;
-    }
-    return 0;
+if(turn == 1)
+    	player1Inputs[input - 1] = 1;
+else 
+	player2Inputs[input - 1] = 1;
+
+return(0);
 }
 
-static void resetInputs(int turn, char *player1Inputs,  char *player2Inputs)
+static void resetInputs(int turn,char *player1Inputs,char *player2Inputs)
 {
-    if (turn == 1) {
-        memset(player1Inputs, 0, rows * columns);
-    } else {
-        memset(player2Inputs, 0, rows * columns);
-    }
+if(turn == 1) 
+    	memset(player1Inputs, 0,rows * columns);
+else 
+    	memset(player2Inputs, 0,rows * columns);
 }
 
-static void printGame(int turn, char *name1, char *name2, int points1, int points2)
+static void printGame(int turn,char *name1,char *name2,int points1,int points2)
 {
-    printf("Joueur 1 : %s\tJoueur 2 : %s", name1, name2);
-    turn == 1 ? printf("\t\tTour de : %s\n", name1) : printf("\t\t\x1b[36mTour de : %s\x1b[0m\n", name2);
-    printf("Points : %d\t\tPoints : %d\n\n", points1, points2);
+printf("Joueur 1 : %s\tJoueur 2 : %s", name1, name2);
+turn == 1 ? printf("\t\tTour de : %s\n", name1) : printf("\t\t\x1b[36mTour de : %s\x1b[0m\n", name2);
+printf("Points : %d\t\tPoints : %d\n\n", points1, points2);
 }
 
-static void printFinalScore(char *name1, char *name2, int points1, int points2) 
+static void printFinalScore(char *name1,char *name2,int points1,int points2) 
 {
-    printf("\n\x1b[33m=== Résultat Final ===\x1b[0m\n\n");
-    printf("%s : %d points\n", name1, points1);
-    printf("%s : %d points\n\n", name2, points2);
+printf("\n\x1b[33m=== Résultat Final ===\x1b[0m\n\n");
+printf("%s : %d points\n", name1, points1);
+printf("%s : %d points\n\n", name2, points2);
     
-    if (points1 > points2) {
-        printf("\x1b[32mFélicitations %s, vous avez gagné !\x1b[0m\n", name1);
-    } else if (points2 > points1) {
-        printf("\x1b[32mFélicitations %s, vous avez gagné !\x1b[0m\n", name2);
-    } else {
-        printf("\x1b[33mFélicitations, c'est une égalité !\x1b[0m\n");
-    }
+if(points1 > points2) 
+    	printf("\x1b[32mFélicitations %s, vous avez gagné !\x1b[0m\n", name1);
+else if(points2 > points1) 
+    	printf("\x1b[32mFélicitations %s, vous avez gagné !\x1b[0m\n", name2);
+else 
+    	printf("\x1b[33mFélicitations, c'est une égalité !\x1b[0m\n");
 }
 
 int main()
 {
 srand(time(NULL));
 printf("\x1b[32mBienvenue à Char Memory\x1b[0m\n\nVeuillez entrer le nombre de lignes et de colonnes que vous souhaitez jouer\n\n");
-while (rows * columns > 100 || rows * columns < 4 || rows * columns % 2 != 0) {
-    printf("Entrez le nombre de lignes : ");
-    scanf("%d", &rows);
-    printf("Entrez le nombre de colonnes : ");
-    scanf("%d", &columns);
-    if (rows * columns > 100) {
-        printf("\x1b[31mLe nombre de lignes multiplié par le nombre de colonnes ne peut pas dépasser 100\x1b[0m\n");
-        }
-    if (rows * columns < 4) {
-        printf("\x1b[31mLe nombre de lignes multiplié par le nombre de colonnes ne peut pas être inférieur à 4\x1b[0m\n");
-        }
-    if (rows * columns % 2 != 0) {
-        printf("\x1b[31mLe nombre de lignes multiplié par le nombre de colonnes doit être pair\x1b[0m\n");
-        }
-    }
+
+do {
+	rows = getValidNumericInput("Entrez le nombre de lignes : ");
+	columns = getValidNumericInput("Entrez le nombre de colonnes : ");
+
+	if(rows * columns > 100) 
+    		printf("\x1b[31mLe nombre de lignes multiplié par le nombre de colonnes ne peut pas dépasser 100\x1b[0m\n");
+	if (rows * columns < 4) 
+    		printf("\x1b[31mLe nombre de lignes multiplié par le nombre de colonnes ne peut pas être inférieur à 4\x1b[0m\n");
+	if (rows * columns % 2 != 0) 
+    		printf("\x1b[31mLe nombre de lignes multiplié par le nombre de colonnes doit être pair\x1b[0m\n");
+
+} while (rows * columns > 100 || rows * columns < 4 || rows * columns % 2 != 0);
+
 system("clear");
 printf("\x1b[32mExcellent ! Maintenant, entrez les noms des joueurs\x1b[0m\n\n");
 system("sleep 1.8 && clear");
@@ -268,7 +300,7 @@ discoveredCells = calloc(rows * columns, sizeof(int));
 memset(player1Inputs, 0, sizeof(player1Inputs));
 memset(player2Inputs, 0, sizeof(player2Inputs));
     
-while (points1 + points2 < rows * columns / 2) {
+while(points1 + points2 < rows * columns / 2) {
     printGame(turn, name1, name2, points1, points2);
     printTable(gameString, player1Inputs, player2Inputs, rows, columns);
     int input1 = 0;
@@ -289,7 +321,7 @@ while (points1 + points2 < rows * columns / 2) {
     system("clear");
     printGame(turn, name1, name2, points1, points2);
     printTable(gameString, player1Inputs, player2Inputs, rows, columns);
-    if (checkTurn(gameString, input1, input2, turn) == 1) {
+    if(checkTurn(gameString, input1, input2, turn) == 1) {
         printf("\x1b[32mBien joué, vous avez trouvé une paire !\x1b[0m\n");
         system("sleep 1.2");
         } 

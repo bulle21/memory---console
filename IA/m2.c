@@ -360,4 +360,3 @@ int main() {
     free(machineMemory);
     return 0;
 }
-
