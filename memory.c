@@ -78,10 +78,10 @@ return(0);
 static int validateInput(int input,int rows,int columns,int previousInput)
 { 
 int 	i,inputValidated = 0,
-    	availableCells = 0;
+    	availableCells;
     
 // Count available cells
-for(i = 0;i < rows * columns;i ++) 
+for(availableCells = 0,i = 0;i < rows * columns;i ++) 
     if(!discoveredCells[i]) 
         availableCells ++;
     
