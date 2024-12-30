@@ -1,0 +1,4 @@
+#sudo apt-get install libncurses5-dev  # Pour Debian/Ubuntu
+gcc memory.c -o memory -lncurses
+
+#gcc $1.c -o $1 -lncurses
