@@ -109,9 +109,16 @@ void printTable(char *gameString, char *player1Inputs, char *machineInputs, int 
             } else {
                 if (cellIndex + 1 < 10) {
                     printf("   %d   │", cellIndex + 1);
-                } else {
-                    printf("  %d   │", cellIndex + 1);
-                }
+		    }
+
+	    	else {
+			if(cellIndex == 99)
+                		printf("   %d │", cellIndex + 1);
+			else
+                		printf("   %d  │", cellIndex + 1);
+            		}
+
+
             }
         }
         printf("\n");
