@@ -179,7 +179,10 @@ for(int i = 0; i < rows; i++) {
                 		printf("   %d   │", cellIndex + 1);
             			} 
 	    		else {
-                		printf("   %d  │", cellIndex + 1);
+				if(cellIndex == 99)
+                			printf("   %d │", cellIndex + 1);
+				else
+                			printf("   %d  │", cellIndex + 1);
             			}
         		}
     		}
